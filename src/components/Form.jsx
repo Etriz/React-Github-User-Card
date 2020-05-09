@@ -11,7 +11,7 @@ const Form = (props) => {
           value={props.state.userID}
           onChange={props.handleChange}
           placeholder="Enter Username"
-          className="rounded rounded-r-none border border-r-none border-gray-500 py-1 px-2"
+          className="rounded rounded-r-none border border-r-none border-gray-500 py-1 px-2 ml-2"
         />
       </label>
       <button

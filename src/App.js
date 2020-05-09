@@ -2,11 +2,13 @@ import React from "react";
 import axios from "axios";
 import UserCard from "./components/UserCard";
 import Form from "./components/Form";
+// import DefaultData from "./Data.json";
 
 class App extends React.Component {
   state = {
-    userID: "etriz",
+    userID: "",
     userData: [],
+    userFollowing: [],
   };
 
   handleChange = (e) => {
@@ -15,15 +17,37 @@ class App extends React.Component {
   handleSubmit = (e) => {
     e.preventDefault();
     this.getUserData();
+    this.setState({ userFollowing: [] });
+    this.getUserFollowingData();
+    this.setState({ userID: "" });
   };
   getUserData = () => {
+    if (this.state.userID !== "") {
+      axios
+        .get(`https://api.github.com/users/${this.state.userID}`)
+        .then((res) => {
+          console.log("userData", res.data);
+          this.setState({ userData: res.data });
+        })
+        .catch((err) => console.error("User fetch error,", err));
+    }
+  };
+  getUserFollowingData = () => {
     axios
-      .get(`https://api.github.com/users/${this.state.userID}`)
+      .get(`https://api.github.com/users/${this.state.userID}/following`)
       .then((res) => {
-        console.log(res.data);
-        this.setState({ userData: res.data });
+        console.log("userFollowingData", res.data);
+        const userArray = [];
+        res.data.forEach((user) => userArray.push(user.login));
+        // eslint-disable-next-line
+        userArray.map((name) => {
+          axios.get(`https://api.github.com/users/${name}`).then((res) => {
+            this.setState({ userFollowing: [...this.state.userFollowing, res.data] });
+          });
+        });
+        // this.setState({ userFollowing: [...res.data] });
       })
-      .catch((err) => console.error("API fetch error,", err));
+      .catch((err) => console.error("Following fetch error,", err));
   };
   componentDidMount() {
     this.getUserData();
@@ -31,8 +55,7 @@ class App extends React.Component {
 
   render() {
     return (
-      <div className="container mx-auto py-6 text-center">
-        <p>GitHub user info.</p>
+      <div className="container mx-auto py-8 text-center">
         <Form
           state={this.state}
           handleChange={this.handleChange}
@@ -45,6 +68,9 @@ class App extends React.Component {
             No User Data Found
           </p>
         )}
+        {this.state.userFollowing
+          ? this.state.userFollowing.map((item) => <UserCard data={item} key={item.id} />)
+          : null}
       </div>
     );
   }
