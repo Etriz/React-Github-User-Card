@@ -6,6 +6,7 @@ import Form from "./components/Form";
 
 class App extends React.Component {
   state = {
+    // inputValue: "",
     userID: "",
     userData: [],
     userFollowing: [],
@@ -16,21 +17,22 @@ class App extends React.Component {
   };
   handleSubmit = (e) => {
     e.preventDefault();
+    // this.setState({ userID: this.state.inputValue });
     this.getUserData();
     this.setState({ userFollowing: [] });
     this.getUserFollowingData();
-    this.setState({ userID: "" });
+    // this.setState({ userID: "" });
   };
   getUserData = () => {
-    if (this.state.userID !== "") {
-      axios
-        .get(`https://api.github.com/users/${this.state.userID}`)
-        .then((res) => {
-          console.log("userData", res.data);
-          this.setState({ userData: res.data });
-        })
-        .catch((err) => console.error("User fetch error,", err));
-    }
+    // if (this.state.userID !== "") {
+    axios
+      .get(`https://api.github.com/users/${this.state.userID}`)
+      .then((res) => {
+        console.log("userData", res.data);
+        this.setState({ userData: res.data });
+      })
+      .catch((err) => console.error("User fetch error,", err));
+    // }
   };
   getUserFollowingData = () => {
     axios
@@ -39,19 +41,23 @@ class App extends React.Component {
         console.log("userFollowingData", res.data);
         const userArray = [];
         res.data.forEach((user) => userArray.push(user.login));
-        // eslint-disable-next-line
         userArray.map((name) => {
-          axios.get(`https://api.github.com/users/${name}`).then((res) => {
+          return axios.get(`https://api.github.com/users/${name}`).then((res) => {
             this.setState({ userFollowing: [...this.state.userFollowing, res.data] });
           });
         });
-        // this.setState({ userFollowing: [...res.data] });
       })
       .catch((err) => console.error("Following fetch error,", err));
   };
   componentDidMount() {
     this.getUserData();
   }
+  // componenetDidUpdate(_, prevState) {
+  //   if (this.state.userID !== prevState.userID) {
+  //     this.setState({ userFollowing: [] });
+  //     this.getUserFollowingData();
+  //   }
+  // }
 
   render() {
     return (
@@ -64,7 +70,7 @@ class App extends React.Component {
         {this.state.userData.length !== 0 ? (
           <UserCard data={this.state.userData} />
         ) : (
-          <p className="rounded border border-gray-500 p-4 my-4 mx-auto w-3/4 max-w-xl text-center">
+          <p className="rounded border border-gray-500 p-4 my-4 mx-auto w-3/4 max-w-xl text-center shadow-lg">
             No User Data Found
           </p>
         )}
