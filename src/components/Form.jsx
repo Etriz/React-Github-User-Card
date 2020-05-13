@@ -8,7 +8,7 @@ const Form = (props) => {
           type="text"
           id="userID"
           name="userID"
-          value={props.state.userID}
+          value={props.state.inputValue}
           onChange={props.handleChange}
           placeholder="Enter Username"
           className="rounded rounded-r-none border border-r-none border-gray-500 py-1 px-2 ml-2"

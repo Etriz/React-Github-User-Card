@@ -6,58 +6,62 @@ import Form from "./components/Form";
 
 class App extends React.Component {
   state = {
-    // inputValue: "",
+    inputValue: "",
     userID: "",
     userData: [],
     userFollowing: [],
   };
 
   handleChange = (e) => {
-    this.setState({ userID: e.target.value });
+    this.setState({ inputValue: e.target.value });
+    // console.log(`inputValue is ${this.state.inputValue}`);
   };
   handleSubmit = (e) => {
     e.preventDefault();
-    // this.setState({ userID: this.state.inputValue });
-    this.getUserData();
-    this.setState({ userFollowing: [] });
-    this.getUserFollowingData();
-    // this.setState({ userID: "" });
+
+    this.setState({ userID: this.state.inputValue });
+    this.setState({ inputValue: "" });
+    // console.log(`userID is ${this.state.userID}`);
   };
   getUserData = () => {
-    // if (this.state.userID !== "") {
-    axios
-      .get(`https://api.github.com/users/${this.state.userID}`)
-      .then((res) => {
-        console.log("userData", res.data);
-        this.setState({ userData: res.data });
-      })
-      .catch((err) => console.error("User fetch error,", err));
-    // }
+    if (this.state.userID !== "") {
+      axios
+        .get(`https://api.github.com/users/${this.state.userID}`)
+        .then((res) => {
+          // console.log("userData", res.data);
+          this.setState({ userData: res.data });
+        })
+        .catch((err) => console.error("User fetch error,", err));
+    }
   };
   getUserFollowingData = () => {
-    axios
-      .get(`https://api.github.com/users/${this.state.userID}/following`)
-      .then((res) => {
-        console.log("userFollowingData", res.data);
-        const userArray = [];
-        res.data.forEach((user) => userArray.push(user.login));
-        userArray.map((name) => {
-          return axios.get(`https://api.github.com/users/${name}`).then((res) => {
-            this.setState({ userFollowing: [...this.state.userFollowing, res.data] });
+    this.setState({ userFollowing: [] });
+    if (this.state.userID !== "") {
+      axios
+        .get(`https://api.github.com/users/${this.state.userID}/following`)
+        .then((res) => {
+          // console.log("userFollowingData", res.data);
+          const userArray = [];
+          res.data.forEach((user) => userArray.push(user.login));
+          userArray.map((name) => {
+            return axios.get(`https://api.github.com/users/${name}`).then((res) => {
+              this.setState({ userFollowing: [...this.state.userFollowing, res.data] });
+            });
           });
-        });
-      })
-      .catch((err) => console.error("Following fetch error,", err));
+        })
+        .catch((err) => console.error("Following fetch error,", err));
+    }
   };
   componentDidMount() {
     this.getUserData();
   }
-  // componenetDidUpdate(_, prevState) {
-  //   if (this.state.userID !== prevState.userID) {
-  //     this.setState({ userFollowing: [] });
-  //     this.getUserFollowingData();
-  //   }
-  // }
+  componentDidUpdate(prepProps, prevState) {
+    if (this.state.userID !== prevState.userID) {
+      // console.log("UPDATE!!");
+      this.getUserData();
+      this.getUserFollowingData();
+    }
+  }
 
   render() {
     return (
